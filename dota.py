@@ -1,31 +1,71 @@
 ﻿# -*- coding: UTF-8 -*-
 import requests
 from lxml import etree
-import random,time
+import random, time
 import xlrd
 import xlwt
-# 英雄名-中文转英文
-heroes_dict=dict(zip( ['哈斯卡','伐木机','斧王','斯拉达','沙王','不朽尸王','全能骑士','裂魂人','军团指挥官','小小','潮汐猎人','噬魂鬼','末日使者','钢背兽','冥魂大帝','发条技师','炼金术士','马格纳斯','亚巴顿','昆卡','艾欧','龙骑士','凤凰','兽王','巨牙海民','上古巨神','狼人','暗夜魔王','撼地者','树精卫士','孽主','大地之灵','混沌骑士','帕吉','半人马战行者','酒仙','斯温','司夜刺客','冥界亚龙','力丸','敌法师','变体精灵','复仇之魂','幻影刺客','露娜','克林克兹','矮人直升机','齐天大圣','灰烬之灵','卓尔游侠','德鲁伊','赏金猎人','恐怖利刃','娜迦海妖','米拉娜','狙击手','幻影长矛手','天穹守望者','剧毒术士','影魔','巨魔战将','斯拉克','嗜血狂魔','幽鬼','虚空假面','美杜莎','圣堂刺客','石鳞剑士','米波','编织者','熊战士','主宰','育母蜘蛛','剃刀','暗影萨满','沉默术士','干扰者','远古冰魄','祈求者','殁境神蚀者','莉娜','术士','黑暗贤者','水晶室女','宙斯','莱恩','巫妖','杰奇洛','拉比克','工程师','陈','食人魔魔法师','谜团','拉席克','巫医','暗影恶魔','光之守卫','祸乱之源','蝙蝠骑士','痛苦女王','天怒法师','修补匠','戴泽','魅惑魔女','瘟疫法师','寒冬飞龙','维萨吉','死亡先知','风暴之灵','邪影芳灵','帕格纳','先知','风行者','神谕者','帕克'],['huskar','shredder','axe','slardar','sand_king','undying','omniknight','spirit_breaker','legion_commander','tiny','tidehunter','life_stealer','doom_bringer','bristleback','skeleton_king','rattletrap','alchemist','magnataur','abaddon','kunkka','wisp','dragon_knight','phoenix','beastmaster','tusk','elder_titan','lycan','night_stalker','earthshaker','treant','abyssal_underlord','earth_spirit','chaos_knight','pudge','centaur','brewmaster','sven','nyx_assassin','viper','riki','antimage','morphling','vengefulspirit','phantom_assassin','luna','clinkz','gyrocopter','monkey_king','ember_spirit','drow_ranger','lone_druid','bounty_hunter','terrorblade','naga_siren','mirana','sniper','phantom_lancer','arc_warden','venomancer','nevermore','troll_warlord','slark','bloodseeker','spectre','faceless_void','medusa','templar_assassin','pangolier','meepo','weaver','ursa','juggernaut','broodmother','razor','shadow_shaman','silencer','disruptor','ancient_apparition','invoker','obsidian_destroyer','lina','warlock','dark_seer','crystal_maiden','zuus','lion','lich','jakiro','rubick','techies','chen','ogre_magi','enigma','leshrac','witch_doctor','shadow_demon','keeper_of_the_light','bane','batrider','queenofpain','skywrath_mage','tinker','dazzle','enchantress','necrolyte','winter_wyvern','visage','death_prophet','storm_spirit','dark_willow','pugna','furion','windrunner','oracle','puck']))
-# 英雄名-英文转中文
-heroes_dict_en=dict(zip(['huskar','shredder','axe','slardar','sand_king','undying','omniknight','spirit_breaker','legion_commander','tiny','tidehunter','life_stealer','doom_bringer','bristleback','skeleton_king','rattletrap','alchemist','magnataur','abaddon','kunkka','wisp','dragon_knight','phoenix','beastmaster','tusk','elder_titan','lycan','night_stalker','earthshaker','treant','abyssal_underlord','earth_spirit','chaos_knight','pudge','centaur','brewmaster','sven','nyx_assassin','viper','riki','antimage','morphling','vengefulspirit','phantom_assassin','luna','clinkz','gyrocopter','monkey_king','ember_spirit','drow_ranger','lone_druid','bounty_hunter','terrorblade','naga_siren','mirana','sniper','phantom_lancer','arc_warden','venomancer','nevermore','troll_warlord','slark','bloodseeker','spectre','faceless_void','medusa','templar_assassin','pangolier','meepo','weaver','ursa','juggernaut','broodmother','razor','shadow_shaman','silencer','disruptor','ancient_apparition','invoker','obsidian_destroyer','lina','warlock','dark_seer','crystal_maiden','zuus','lion','lich','jakiro','rubick','techies','chen','ogre_magi','enigma','leshrac','witch_doctor','shadow_demon','keeper_of_the_light','bane','batrider','queenofpain','skywrath_mage','tinker','dazzle','enchantress','necrolyte','winter_wyvern','visage','death_prophet','storm_spirit','dark_willow','pugna','furion','windrunner','oracle','puck'], ['哈斯卡','伐木机','斧王','斯拉达','沙王','不朽尸王','全能骑士','裂魂人','军团指挥官','小小','潮汐猎人','噬魂鬼','末日使者','钢背兽','冥魂大帝','发条技师','炼金术士','马格纳斯','亚巴顿','昆卡','艾欧','龙骑士','凤凰','兽王','巨牙海民','上古巨神','狼人','暗夜魔王','撼地者','树精卫士','孽主','大地之灵','混沌骑士','帕吉','半人马战行者','酒仙','斯温','司夜刺客','冥界亚龙','力丸','敌法师','变体精灵','复仇之魂','幻影刺客','露娜','克林克兹','矮人直升机','齐天大圣','灰烬之灵','卓尔游侠','德鲁伊','赏金猎人','恐怖利刃','娜迦海妖','米拉娜','狙击手','幻影长矛手','天穹守望者','剧毒术士','影魔','巨魔战将','斯拉克','嗜血狂魔','幽鬼','虚空假面','美杜莎','圣堂刺客','石鳞剑士','米波','编织者','熊战士','主宰','育母蜘蛛','剃刀','暗影萨满','沉默术士','干扰者','远古冰魄','祈求者','殁境神蚀者','莉娜','术士','黑暗贤者','水晶室女','宙斯','莱恩','巫妖','杰奇洛','拉比克','工程师','陈','食人魔魔法师','谜团','拉席克','巫医','暗影恶魔','光之守卫','祸乱之源','蝙蝠骑士','痛苦女王','天怒法师','修补匠','戴泽','魅惑魔女','瘟疫法师','寒冬飞龙','维萨吉','死亡先知','风暴之灵','邪影芳灵','帕格纳','先知','风行者','神谕者','帕克']))
-# 英雄名-英文
-hero_list=['huskar','shredder','axe','slardar','sand_king','undying','omniknight','spirit_breaker','legion_commander','tiny','tidehunter','life_stealer','doom_bringer','bristleback','skeleton_king','rattletrap','alchemist','magnataur','abaddon','kunkka','wisp','dragon_knight','phoenix','beastmaster','tusk','elder_titan','lycan','night_stalker','earthshaker','treant','abyssal_underlord','earth_spirit','chaos_knight','pudge','centaur','brewmaster','sven','nyx_assassin','viper','riki','antimage','morphling','vengefulspirit','phantom_assassin','luna','clinkz','gyrocopter','monkey_king','ember_spirit','drow_ranger','lone_druid','bounty_hunter','terrorblade','naga_siren','mirana','sniper','phantom_lancer','arc_warden','venomancer','nevermore','troll_warlord','slark','bloodseeker','spectre','faceless_void','medusa','templar_assassin','pangolier','meepo','weaver','ursa','juggernaut','broodmother','razor','shadow_shaman','silencer','disruptor','ancient_apparition','invoker','obsidian_destroyer','lina','warlock','dark_seer','crystal_maiden','zuus','lion','lich','jakiro','rubick','techies','chen','ogre_magi','enigma','leshrac','witch_doctor','shadow_demon','keeper_of_the_light','bane','batrider','queenofpain','skywrath_mage','tinker','dazzle','enchantress','necrolyte','winter_wyvern','visage','death_prophet','storm_spirit','dark_willow','pugna','furion','windrunner','oracle','puck']
+import redis
+
+# -*- coding: UTF-8 -*-
+import requests
+from lxml import etree
+import random, time
+import xlrd
+import xlwt
+from operator import add
+
+
+def add_two_list(list_a, list_b):
+    print(list_a, list_b)
+    list_result = [x + float(y.strip('%')) for x, y in zip(list_a, list_b)]
+    return list_result
+
+
 # 浏览器头文件
 head = {}
-head['User-Agent'] = 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+head[
+    'User-Agent'] = 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+# comb_data = data.sheets()[1]
+urltest = 'http://dotamax.com/hero/rate'
+r = requests.get(urltest, headers=head).text
+# print(r)
+s = etree.HTML(r)
+hero_list_chn = s.xpath("//span[@class='hero-name-list']/text()")
+hero_list_en = s.xpath("//img[@class='hero-img-list']/@src")
+hero_list = []
+heroes_dict_en = {}
+heroes_dict = {}
+heroes_name_index = {}
+for en_hero in hero_list_en:
+    en_hero_name = (en_hero.split('/')[-1]).replace('_hphover.png', '')
+    hero_list.append(en_hero_name)
 
-i=0
-name_anti=[]
-rate_anti=[]
+for idx, chn_hero in enumerate(hero_list_chn):
+    heroes_dict_en[hero_list[idx]] = chn_hero
+    heroes_dict[chn_hero] = hero_list[idx]
+
+# 浏览器头文件
+head = {}
+head[
+    'User-Agent'] = 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+
+i = 0
+name_anti = []
+rate_anti = []
 # 打开一个n局的数据表，作用是：当本次爬取的特定数据缺失时，使用n局数据进行填充
 # n局同样缺失的胜率，克制和配合指数设置为0.0%
 data = xlrd.open_workbook('Dota_n.xlsx')
 anti_data = data.sheets()[0]
-comb_data=data.sheets()[1]
+comb_data = data.sheets()[1]
+
+redis_cli = redis.Redis(host='localhost', port=6379, decode_responses=True)
+
+total_hero_len = len(hero_list)
 
 # 爬取各英雄作为对手时的胜率
 for hero in hero_list:
-    url0='http://www.dotamax.com/hero/detail/match_up_anti/T/?server=cn&ladder=y&skill=h&time=month'
+    url0 = 'http://www.dotamax.com/hero/detail/match_up_anti/T'
+    # /
     ##########################################
     # 本次爬取的是国内h局天梯最近一个月的数据，
     # 可以通过修改【两个】for循环中的url0值来爬取其他数据
@@ -37,116 +77,153 @@ for hero in hero_list:
     # match_up_comb（队友） match_up_anti（对手）
     # T --英雄的名字，下一行程序会将进行替换
     ##########################################
-    url=url0.replace('T', hero, 1)
-    r=requests.get(url, headers=head).text
-    s=etree.HTML(r)
+    url = url0.replace('T', hero, 1)
+    response = redis_cli.get('anti_' + hero)
+    if not response:
+        response = requests.get(url, headers=head).text
+        redis_cli.set('anti_' + hero, response, 86400)
+
+    s = etree.HTML(response)
     name_anti.append(s.xpath('/html/body/div[2]/div[3]/div[1]/div[2]/table/tbody/tr/td[1]/span/text()'))
     name_anti[i].append(heroes_dict_en[hero])
     rate_anti.append(s.xpath('/html/body/div[2]/div[3]/div[1]/div[2]/table/tbody/tr/td[2]/div[1]/text()'))
     rate_anti[i].append('0.00%')
-    i=i+1
-    print (i,'/115',hero)
-    time.sleep(random.uniform(0.1,0.5))
+    i = i + 1
+    print(i, '/{}'.format(total_hero_len), hero)
+    # time.sleep(random.uniform(0.1, 0.5))
 
 # 将数据格式化并排序
-list_n=0
-while list_n < 115:   
-    i=0
-    j=0
-    #把英雄名字变为英文
+list_n = 0
+while list_n < total_hero_len:
+    i = 0
+    j = 0
+    # 把英雄名字变为英文
     for heroname_cn in name_anti[list_n]:
-        name_anti[list_n][j]=heroes_dict[heroname_cn]
-        j=j+1
-    #把英雄的名字和胜率按照标准顺序排序
-    hero_n=0
-    while hero_n < 115:   
-        if name_anti[list_n][i]==hero_list[hero_n]:
-            name_anti[list_n][i]=name_anti[list_n][hero_n]
-            name_anti[list_n][hero_n]=hero_list[hero_n]
-            temp=rate_anti[list_n][i]
-            rate_anti[list_n][i]=rate_anti[list_n][hero_n]
-            rate_anti[list_n][hero_n]=temp
-            hero_n=hero_n+1
-            i=hero_n
+        name_anti[list_n][j] = heroes_dict[heroname_cn]
+        j = j + 1
+    # 把英雄的名字和胜率按照标准顺序排序
+    hero_n = 0
+    while hero_n < total_hero_len:
+        if name_anti[list_n][i] == hero_list[hero_n]:
+            name_anti[list_n][i] = name_anti[list_n][hero_n]
+            name_anti[list_n][hero_n] = hero_list[hero_n]
+            temp = rate_anti[list_n][i]
+            rate_anti[list_n][i] = rate_anti[list_n][hero_n]
+            rate_anti[list_n][hero_n] = temp
+            hero_n = hero_n + 1
+            i = hero_n
         else:
-            i=i+1
-            if i==len(name_anti[list_n]):
-                print(list_n,hero_n,hero_list[list_n],hero_list[hero_n])
+            i = i + 1
+            if i == len(name_anti[list_n]):
+                print(list_n, hero_n, hero_list[list_n], hero_list[hero_n])
                 name_anti[list_n].insert(hero_n, hero_list[hero_n])
-                rate_anti[list_n].insert(hero_n, anti_data.cell(hero_n+1,list_n+1).value)
-                hero_n=hero_n+1
-                i=hero_n      
-    print (list_n+1,'/115',hero_list[list_n],len(name_anti[list_n]))
-    list_n=list_n+1
+                rate_anti[list_n].insert(hero_n, anti_data.cell(hero_n + 1, list_n + 1).value)
+                hero_n = hero_n + 1
+                i = hero_n
+    print(list_n + 1, '/{}'.format(total_hero_len), hero_list[list_n], len(name_anti[list_n]))
+    list_n = list_n + 1
 
 # 爬取各英雄作为队友时的胜率
-i=0
-name_comb=[]
-rate_comb=[]
+i = 0
+name_comb = []
+rate_comb = []
 for hero in hero_list:
-    url0='http://www.dotamax.com/hero/detail/match_up_comb/T/?server=cn&ladder=y&skill=h&time=month' 
+    url0 = 'http://www.dotamax.com/hero/detail/match_up_comb/T'
     ##########################################
     # 本次爬取的是国内h局天梯最近一个月的数据，
     # 可以通过修改【两个】for循环中的url0值来爬取其他数据
     ##########################################
-    url=url0.replace('T', hero, 1)
-    r=requests.get(url, headers=head).text
-    s=etree.HTML(r)
+    url = url0.replace('T', hero, 1)
+    response = redis_cli.get('comb_' + hero)
+    if not response:
+        response = requests.get(url, headers=head).text
+        redis_cli.set('comb_' + hero, response, 86400)
+    # r = requests.get(url, headers=head).text
+    s = etree.HTML(response)
     name_comb.append(s.xpath('/html/body/div[2]/div[3]/div[1]/div[2]/table/tbody/tr/td[1]/span/text()'))
     name_comb[i].append(heroes_dict_en[hero])
     rate_comb.append(s.xpath('/html/body/div[2]/div[3]/div[1]/div[2]/table/tbody/tr/td[2]/div[1]/text()'))
     rate_comb[i].append('0.00%')
-    i=i+1
-    print (i,'/115',hero)
-    time.sleep(random.uniform(0.1,0.5))
+    i = i + 1
+    print(i, '/{}'.format(total_hero_len), hero)
+    # time.sleep(random.uniform(0.1, 0.5))
 
 # 将数据格式化并排序
-list_n=0
-while list_n < 115:   
-    i=0
-    j=0
-    #把英雄名字变为英文
+list_n = 0
+while list_n < total_hero_len:
+    i = 0
+    j = 0
+    # 把英雄名字变为英文
     for heroname_cn in name_comb[list_n]:
-        name_comb[list_n][j]=heroes_dict[heroname_cn]
-        j=j+1
-    #把英雄的名字和胜率按照标准顺序排序
-    hero_n=0
-    while hero_n < 115:   
-        if name_comb[list_n][i]==hero_list[hero_n]:
-            name_comb[list_n][i]=name_comb[list_n][hero_n]
-            name_comb[list_n][hero_n]=hero_list[hero_n]
-            temp=rate_comb[list_n][i]
-            rate_comb[list_n][i]=rate_comb[list_n][hero_n]
-            rate_comb[list_n][hero_n]=temp
-            hero_n=hero_n+1
-            i=hero_n
+        name_comb[list_n][j] = heroes_dict[heroname_cn]
+        j = j + 1
+    # 把英雄的名字和胜率按照标准顺序排序
+    hero_n = 0
+    while hero_n < total_hero_len:
+        if name_comb[list_n][i] == hero_list[hero_n]:
+            name_comb[list_n][i] = name_comb[list_n][hero_n]
+            name_comb[list_n][hero_n] = hero_list[hero_n]
+            temp = rate_comb[list_n][i]
+            rate_comb[list_n][i] = rate_comb[list_n][hero_n]
+            rate_comb[list_n][hero_n] = temp
+            hero_n = hero_n + 1
+            i = hero_n
         else:
-            i=i+1
-            if i==len(name_comb[list_n]):
-                print(list_n,hero_n,hero_list[list_n],hero_list[hero_n])
+            i = i + 1
+            if i == len(name_comb[list_n]):
+                print(list_n, hero_n, hero_list[list_n], hero_list[hero_n])
                 name_comb[list_n].insert(hero_n, hero_list[hero_n])
-                rate_comb[list_n].insert(hero_n, comb_data.cell(hero_n+1,list_n+1).value)
-                hero_n=hero_n+1
-                i=hero_n      
-    print (list_n+1,'/115',hero_list[list_n],len(name_comb[list_n]))
-    list_n=list_n+1
-
+                rate_comb[list_n].insert(hero_n, comb_data.cell(hero_n + 1, list_n + 1).value)
+                hero_n = hero_n + 1
+                i = hero_n
+    print(list_n + 1, ' /{}'.format(total_hero_len), hero_list[list_n], len(name_comb[list_n]))
+    list_n = list_n + 1
+for idx, hero_i in enumerate(hero_list):
+    heroes_name_index[hero_i] = idx
 # 将数据写入到表格
-workbook = xlwt.Workbook(encoding = 'ascii')
-worksheet1 = workbook.add_sheet('anti_h')
-worksheet2 = workbook.add_sheet('comb_h')
-for row in range(1,116):
-    worksheet1.write(row, 0, hero_list[row-1])
-for col in range(1,116):
-    worksheet1.write(0, col, hero_list[col-1])
-for row in range(1,116):
-    for col in range(1,116):
-        worksheet1.write(row, col, rate_anti[row-1][col-1])
-for row in range(1,116):
-    worksheet2.write(row, 0, hero_list[row-1])
-for col in range(1,116):
-    worksheet2.write(0, col, hero_list[col-1])
-for col in range(1,116):
-    for row in range(1,116):
-        worksheet2.write(row, col, rate_comb[col-1][row-1])
-workbook.save('Dota_BP_h.xls')
+need_write_excel = False
+input_hero_chn = "力丸,龙骑士,巫医,沉默术士"
+input_list_en = [heroes_dict[x] for x in input_hero_chn.split(",")]
+input_hero = "axe,morphling,razor,sniper"
+if not input_hero_chn:
+    input_list = input_hero.split(",")
+else:
+    input_list = input_list_en
+input_idx_list = []
+rate_anti_total = []
+total_each = 0.0
+tmp_sum_list = []
+for each_hero in input_list:
+    idx_input = heroes_name_index[each_hero]
+    # get hero anti
+    if len(rate_anti_total) == 0:
+        rate_anti_total = [float(x.strip('%')) for x in rate_anti[idx_input]]
+    else:
+        rate_anti_total = add_two_list(rate_anti_total, rate_anti[idx_input])
+print(rate_anti_total)
+name_rate_map = {}
+for idx, hero_i in enumerate(hero_list):
+    name_rate_map[heroes_dict_en[hero_i]] = rate_anti_total[idx]
+# 排序
+hero_out = dict(sorted(name_rate_map.items(), key=lambda item: item[1]))
+print('最克制人物{}的为{}'.format([heroes_dict_en[each_hero] for each_hero in input_list], hero_out))
+
+if need_write_excel:
+    workbook = xlwt.Workbook(encoding='ascii')
+    worksheet1 = workbook.add_sheet('anti_h')
+    worksheet2 = workbook.add_sheet('comb_h')
+    for row in range(1, total_hero_len):
+        worksheet1.write(row, 0, hero_list[row - 1])
+    for col in range(1, total_hero_len):
+        worksheet1.write(0, col, hero_list[col - 1])
+    for row in range(1, total_hero_len):
+        for col in range(1, total_hero_len):
+            worksheet1.write(row, col, rate_anti[row - 1][col - 1])
+    for row in range(1, total_hero_len):
+        worksheet2.write(row, 0, hero_list[row - 1])
+    for col in range(1, total_hero_len):
+        worksheet2.write(total_hero_len, col, hero_list[col - 1])
+    for col in range(1, total_hero_len):
+        for row in range(1, total_hero_len):
+            worksheet2.write(row, col, rate_comb[col - 1][row - 1])
+    workbook.save('Dota_BP_h.xls')
