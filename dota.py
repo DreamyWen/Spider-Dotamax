@@ -5,7 +5,7 @@ import random, time
 import xlrd
 import xlwt
 import redis
-
+import csv
 # -*- coding: UTF-8 -*-
 import requests
 from lxml import etree
@@ -13,6 +13,7 @@ import random, time
 import xlrd
 import xlwt
 from operator import add
+from datetime import datetime
 
 
 def add_two_list(list_a, list_b):
@@ -178,6 +179,23 @@ while list_n < total_hero_len:
                 i = hero_n
     print(list_n + 1, ' /{}'.format(total_hero_len), hero_list[list_n], len(name_comb[list_n]))
     list_n = list_n + 1
+
+# 这里写入临时文件
+date_time = datetime.today().strftime('%Y-%m-%d')
+with open(date_time + "_anti.txt", 'w') as out:
+    out.write('\t'.join(name_anti[0]) + '\n')
+    out.write('\t'.join([heroes_dict_en[x] for x in name_anti[0]]) + '\n')
+    csvWriter = csv.writer(out, delimiter='\t')
+    csvWriter.writerows(rate_anti)
+    # out.write(rate_anti + '\n')
+
+with open(date_time + "_comb.txt", 'w') as out:
+    out.write('\t'.join(name_comb[0]) + '\n')
+    out.write('\t'.join([heroes_dict_en[x] for x in name_comb[0]]) + '\n')
+    csvWriter = csv.writer(out, delimiter='\t')
+    csvWriter.writerows(rate_comb)
+    # out.write(rate_anti + '\n')
+
 for idx, hero_i in enumerate(hero_list):
     heroes_name_index[hero_i] = idx
 # 将数据写入到表格
